@@ -11,7 +11,8 @@ class Sanction::Role < ActiveRecord::Base
   validates_presence_of :name
 
   validate :valid_role_definition
-  validate :uniqueness_of_intent
+
+  validate_on_create :uniqueness_of_intent
 
   # Ensure the role is valid by definition
   def valid_role_definition
@@ -33,6 +34,7 @@ class Sanction::Role < ActiveRecord::Base
     conditions = conds.map {|c| self.class.merge_conditions(c)}.join(" AND ")
     if Sanction::Role.exists?([conditions])
       errors.add_to_base("This role is already captured by another.") 
+      false
     else
       true  
     end

@@ -41,7 +41,7 @@ namespace :sanction do
   
     desc "Validate the current roles table by validating against the Sanction::Role::Definitions currently configured."
     task :validate => :environment do
-      invalid_roles, valid_roles = (Sanction::Role.all || []).partition {|role| role.is_valid?}
+      valid_roles, invalid_roles = (Sanction::Role.all || []).partition {|role| role.valid?}
        
       puts "#{invalid_roles.size} invalid roles."
       puts "#{valid_roles.size} valid roles."
@@ -49,7 +49,7 @@ namespace :sanction do
 
     desc "Validates the current roles table and removes invalid roles according to the Sanction::Role::Definitions currently configured."
     task :cleanse => :environment do
-      invalid_roles, valid_roles = (Sanction::Role.all || []).partition {|role| role.is_valid?}
+      valid_roles, invalid_roles = (Sanction::Role.all || []).partition {|role| role.valid?}
   
       puts "#{invalid_roles.size} invalid roles."
 
