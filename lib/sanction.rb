@@ -27,6 +27,10 @@ module Sanction
   def self.role(role_name, relationship_and_options)
     Sanction::Role::Definition.new(role_name, relationship_and_options)
   end
+
+  def self.version
+    Sanction::Version::STRING
+  end
   
   #--------------------------------------------------#
   #                   Class Vars                     #
