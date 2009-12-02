@@ -7,9 +7,11 @@ module Sanction
         base.send(:include, GrantMethod)
         base.send(:include, InstanceMethods)
       end
-
+    
       module GrantMethod
         def grant(role_name, over = nil)
+          raise Sanction::Role::Error::UnknownPrincipal.new(self) unless Sanction::Role::Definition.valid_principal? self
+
           if Sanction::Role::Definition.valid_role? self, role_name, over
             if over.blank?
               if Sanction::Role::Definition.globals.map(&:name).include?(role_name)
@@ -34,6 +36,8 @@ module Sanction
         end
         
         def give_permissionable_role(role_name, over)
+          raise Sanction::Role::Error::UnknownPermissionable.new(over) unless Sanction::Role::Definition.valid_permissionable? over
+
           if(over.class == Class)
             role_to_create = self.principal_roles.build(:name => role_name.to_s, :permissionable_id => nil, :permissionable_type => over.to_s)
             role_to_create.save

@@ -10,7 +10,11 @@ module Sanction
 
       module RevokeMethod
         def revoke(role_name, over = nil)
+          raise Sanction::Role::Error::UnknownPrincipal.new(self) unless Sanction::Role::Definition.valid_principal? self
+
           if(over)
+            raise Sanction::Role::Error::UnknownPermissionable.new(over) unless Sanction::Role::Definition.valid_permissionable? over
+
             self.remove_permissionable_role(role_name, over)            
           else
             self.remove_global_role(role_name)            

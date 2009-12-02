@@ -110,15 +110,23 @@ module Sanction
       end
 
       def self.valid_principal?(principal_klass)
-       principal_klass = principal_klass.class unless principal_klass.is_a? Class
+        if (not principal_klass.is_a? Class) and principal_klass.new_record?
+          false
+        else
+          principal_klass = principal_klass.class unless principal_klass.is_a? Class
 
-       !self.for(principal_klass).blank?
+          !self.for(principal_klass).blank?
+        end
       end
 
       def self.valid_permissionable?(permissionable_klass)
-       permissionable_klass = permissionable_klass.class unless permissionable_klass.is_a? Class
+        if (not permissionable_klass.is_a? Class) and permissionable_klass.new_record?
+          false
+        else
+          permissionable_klass = permissionable_klass.class unless permissionable_klass.is_a? Class
 
-       !self.over(permissionable_klass).blank?
+          !self.over(permissionable_klass).blank?
+        end
       end
 
       def self.valid_role_name?(role_name)

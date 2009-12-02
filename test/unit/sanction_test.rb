@@ -423,4 +423,24 @@ class SanctionTest < Test::Unit::TestCase
     assert Person.revoke(:reader, Magazine)
     assert Sanction::Role.count(:all) == 0
   end
+
+  def test_instance_grant_should_not_result_in_universal_application
+    assert_raise(Sanction::Role::Error::UnknownPrincipal) { Person.new.grant(:reader, Magazine) }
+    assert_raise(Sanction::Role::Error::UnknownPermissionable) { Person.grant(:reader, Magazine.new) }
+  end
+  
+  def test_instance_authorize_should_not_result_in_universal_application
+    assert_raise(Sanction::Role::Error::UnknownPermissionable) { Magazine.new.authorize(:reader, Person) }
+    assert_raise(Sanction::Role::Error::UnknownPrincipal) { Magazine.authorize(:reader, Person.new) }
+  end
+
+  def test_instance_revoke_should_not_result_in_universal_deletion
+    assert_raise(Sanction::Role::Error::UnknownPrincipal) { Person.new.revoke(:reader, Magazine) }
+    assert_raise(Sanction::Role::Error::UnknownPermissionable) { Person.revoke(:reader, Magazine.new) }
+  end
+
+  def test_instance_unauthorize_should_not_result_in_universal_deletion
+    assert_raise(Sanction::Role::Error::UnknownPermissionable) { Magazine.new.unauthorize(:reader, Person) }
+    assert_raise(Sanction::Role::Error::UnknownPrincipal) { Magazine.unauthorize(:reader, Person.new) }
+  end
 end
