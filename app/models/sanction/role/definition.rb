@@ -110,7 +110,7 @@ module Sanction
       end
 
       def self.valid_principal?(principal_klass)
-        if (not principal_klass.is_a? Class) and principal_klass.new_record?
+        if (not principal_klass.is_a? Class) and principal_klass.respond_to?( :new_record? ) and principal_klass.new_record?
           false
         else
           principal_klass = principal_klass.class unless principal_klass.is_a? Class
@@ -120,7 +120,7 @@ module Sanction
       end
 
       def self.valid_permissionable?(permissionable_klass)
-        if (not permissionable_klass.is_a? Class) and permissionable_klass.new_record?
+        if (not permissionable_klass.is_a? Class) and permissionable_klass.respond_to?( :new_record? ) and permissionable_klass.new_record?
           false
         else
           permissionable_klass = permissionable_klass.class unless permissionable_klass.is_a? Class
