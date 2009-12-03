@@ -5,6 +5,8 @@ module Sanction
         base.class_eval %q{
           has_many :principal_roles, :as => :principal, :class_name => "Sanction::Role", 
                    :finder_sql => 'SELECT * FROM roles WHERE roles.principal_type = "#{self.class.name.to_s}" AND (roles.principal_id = "#{id}" OR roles.principal_id IS NULL)'
+
+          has_many :specific_principal_roles, :as => :principal, :class_name => "Sanction::Role", :dependent => :destroy
         }
 
         base.named_scope :as_principal_self, lambda {

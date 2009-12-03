@@ -443,4 +443,31 @@ class SanctionTest < Test::Unit::TestCase
     assert_raise(Sanction::Role::Error::UnknownPermissionable) { Magazine.new.unauthorize(:reader, Person) }
     assert_raise(Sanction::Role::Error::UnknownPrincipal) { Magazine.unauthorize(:reader, Person.new) }
   end
+
+  def test_removal_of_principal_instance
+    assert Person.grant(:reader, Magazine)
+
+    person = Person.create
+    assert person.grant(:editor, Magazine)
+    assert Sanction::Role.count(:all) == 2
+
+    person.destroy
+
+    assert Sanction::Role.count(:all) == 1
+    assert Person.revoke(:reader, Magazine)
+    assert Sanction::Role.count(:all) == 0
+  end
+
+  def test_removal_of_permissionable_instance
+     assert Magazine.authorize(:reader, Person)
+    
+     magazine = Magazine.create
+     assert magazine.authorize(:editor, Person)
+   
+     magazine.destroy
+    
+     assert Sanction::Role.count(:all) == 1
+     assert Magazine.unauthorize(:reader, Person)
+     assert Sanction::Role.count(:all) == 0
+  end
 end
