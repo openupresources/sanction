@@ -7,7 +7,7 @@ namespace :sanction do
   namespace :roles do
     desc "Describe your currently configured Sanction Roles. Can aggregate by :principal, :permissionable, or :token"
     task :describe => :environment do
-      aggregate_by_options = [:nothing, :principal, :permissionable, :token]
+      aggregate_by_options = [:nothing, :principal, :permissionable, :name]
       aggregate_by = aggregate_by_options.first
 
       if ENV['aggregate_by']
@@ -30,10 +30,10 @@ namespace :sanction do
             Sanction::Role::Definition.over(permissionable).map(&:describe).map {|r| puts r}
             puts
           end
-        when :token
-          Sanction::Role::Definition.tokens.each do |token|
-            puts token.to_s
-            Sanction::Role::Definition.with(token).map(&:describe).map {|r| puts r}
+        when :name
+          Sanction::Role::Definition.names.each do |name|
+            puts name.to_s
+            Sanction::Role::Definition.with(name).map(&:describe).map {|r| puts r}
             puts
           end
       end

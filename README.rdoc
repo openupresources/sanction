@@ -51,6 +51,12 @@ After cloning / downloading, use:
 This will stub out the config/initializers/sanction.rb used for configuration and will produce a migration for your roles table.
 Be sure to rake db:migrate to produce the roles table.
 
+=Testing
+To run the Sanction test suite, which was generated with the help of plugin_a_week's plugin_test_helper, step into the
+vendor/plugins/sanction and run rake test.
+
+You can also view the result of the last test build online @ http://runcoderun.com/matthewvermaak
+
 =Config
 
 ===Example
@@ -298,10 +304,6 @@ So a potential application code example might be:
     @person = Person.find(parms[:person_id])
     @magazines = Magazine.for(@person)
     @magazines_for_editing = Magazine.for(@person).with(:can_edit)
-
-=Testing
-To run the Sanction test suite, which was generated with the help of plugin_a_week's plugin_test_helper, step into the
-vendor/plugins/sanction and run rake test.
 
 =Quirks
 <b>Count</b>
