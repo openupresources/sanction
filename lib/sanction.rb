@@ -13,7 +13,8 @@ module Sanction
     
     begin
       yield self
-    rescue ActiveRecord::StatementInvalid  
+    rescue ActiveRecord::StatementInvalid => e
+      puts "WARNING: Class not defined, got an error #{e.message}"
     end
   
     do_injections!
