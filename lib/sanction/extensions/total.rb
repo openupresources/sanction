@@ -4,10 +4,8 @@ module Sanction
       def self.included(base)
         method_name = "total"
 
-        if base.respond_to? method_name
-          base.class_eval %Q{
-            (class << self; self; end).send(:remove_method, '#{method_name}')
-          }
+        if base.class.respond_to? method_name
+          base.class.send(:remove_method, method_name)
         end
 
         base.class_eval %Q{
