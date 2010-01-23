@@ -8,7 +8,7 @@ class SanctionTest < Test::Unit::TestCase
     # Set up config --
     Sanction.configure do |config|
       config.principals      = [Person]
-      config.permissionables = [Person, Magazine, Magazines::Article]
+      config.permissionables = [Person, Magazine, Magazines::Article, Tabloid]
       
       config.role :reader, Person => Magazine, :having => [:can_read]
       config.role :editor, Person => Magazine, :having => [:can_edit],  :includes => [:reader]

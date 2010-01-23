@@ -1,0 +1,3 @@
+class Tabloid < Magazine
+
+end
