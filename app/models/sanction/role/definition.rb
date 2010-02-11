@@ -186,6 +186,21 @@ module Sanction
         "#{prefix} can have #{name.to_s.titleize}#{suffix}"
       end
 
+      def self.first
+         self.all_roles.first
+       end
+
+       def self.last
+         self.all_roles.last
+       end
+
+       # Make the class behave like a sensible collection!
+       extend Enumerable
+       def self.each
+         self.all_roles.each do |x|
+           yield x
+         end
+       end
 
       #--------------------------------------------------#
       #                  Private API                     #
