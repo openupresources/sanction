@@ -22,13 +22,13 @@ class Sanction::Role < ActiveRecord::Base
   # See if the intent of this role is captured by another role
   def uniqueness_of_intent
     conds = []
-    conds << ["#{table_name}.principal_type = ? AND (#{table_name}.principal_id = ? OR #{table_name}.principal_id IS NULL)", principal_type, (principal_id || "")]
-    conds << ["#{table_name}.name = ?", name]
+    conds << ["#{self.class.table_name}.principal_type = ? AND (#{self.class.table_name}.principal_id = ? OR #{self.class.table_name}.principal_id IS NULL)", principal_type, (principal_id || "")]
+    conds << ["#{self.class.table_name}.name = ?", name]
   
     if global?
-      conds << ["#{table_name}.global = ?", true] 
+      conds << ["#{self.class.table_name}.global = ?", true] 
     else
-      conds << ["#{table_name}.permissionable_type = ? AND (#{table_name}.permissionable_id = ? OR #{table_name}.permissionable_id IS NULL)", permissionable_type, (permissionable_id || "")]
+      conds << ["#{self.class.table_name}.permissionable_type = ? AND (#{self.class.table_name}.permissionable_id = ? OR #{self.class.table_name}.permissionable_id IS NULL)", permissionable_type, (permissionable_id || "")]
     end
 
     conditions = conds.map {|c| self.class.merge_conditions(c)}.join(" AND ")
@@ -58,11 +58,11 @@ class Sanction::Role < ActiveRecord::Base
 
     conds = []
     permissionables_by_klass.each do |(klass, ids)|
-      conds << ["#{table_name}.permissionable_type = ? AND (#{table_name}.permissionable_id IN (?) OR #{table_name}.permissionable_id IS NULL)", klass, ids]
+      conds << ["#{self.class.table_name}.permissionable_type = ? AND (#{self.class.table_name}.permissionable_id IN (?) OR #{self.class.table_name}.permissionable_id IS NULL)", klass, ids]
     end
     conditions = conds.map { |c| merge_conditions(c) }.join(" OR ")
  
-    {:select => "DISTINCT #{table_name}.*", :conditions => conditions}
+    {:select => "DISTINCT #{self.class.table_name}.*", :conditions => conditions}
   }
 
   # Expects an array of Principal instances.
@@ -77,11 +77,11 @@ class Sanction::Role < ActiveRecord::Base
 
     conds = []
     pricipals_by_klass.each do |(klass, ids)|
-      conds << ["#{table_name}.principal_type = ? AND (#{table_name}.principal_id IN (?) OR #{table_name}.principal_id IS NULL)", klass, ids]
+      conds << ["#{self.class.table_name}.principal_type = ? AND (#{self.class.table_name}.principal_id IN (?) OR #{self.class.table_name}.principal_id IS NULL)", klass, ids]
     end
     conditions = conds.map { |c| merge_conditions(c) }.join(" OR ")
 
-    {:select => "DISTINCT #{table_name}.*", :conditions => conditions}
+    {:select => "DISTINCT #{self.class.table_name}.*", :conditions => conditions}
   }
 
   #--------------------------------------------------#
