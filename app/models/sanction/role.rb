@@ -22,13 +22,13 @@ class Sanction::Role < ActiveRecord::Base
   # See if the intent of this role is captured by another role
   def uniqueness_of_intent
     conds = []
-    conds << ["#{self.class.table_name}.principal_type = ? AND (#{self.class.table_name}.principal_id = ? OR #{self.class.table_name}.principal_id IS NULL)", principal_type, (principal_id || "")]
+    conds << ["#{self.class.table_name}.principal_type = ? AND (#{self.class.table_name}.principal_id = ? OR #{self.class.table_name}.principal_id IS NULL)", principal_type, (principal_id || nil)]
     conds << ["#{self.class.table_name}.name = ?", name]
   
     if global?
       conds << ["#{self.class.table_name}.global = ?", true] 
     else
-      conds << ["#{self.class.table_name}.permissionable_type = ? AND (#{self.class.table_name}.permissionable_id = ? OR #{self.class.table_name}.permissionable_id IS NULL)", permissionable_type, (permissionable_id || "")]
+      conds << ["#{self.class.table_name}.permissionable_type = ? AND (#{self.class.table_name}.permissionable_id = ? OR #{self.class.table_name}.permissionable_id IS NULL)", permissionable_type, (permissionable_id || nil)]
     end
 
     conditions = conds.map {|c| self.class.merge_conditions(c)}.join(" AND ")
