@@ -3,8 +3,13 @@ module Sanction
     module Base
       def self.extended(base)
         base.class_eval %q{
-          has_many :permissionable_roles, :as => :permissionable, :class_name => "Sanction::Role",
-                   :finder_sql => 'SELECT * FROM roles WHERE roles.permissionable_type = "#{self.class.name.to_s}" AND (roles.permissionable_id = "#{id}" OR roles.permissionable_id IS NULL)'
+          def permissionable_roles
+            Sanction::Role.over(self)
+          end
+ 
+          def self.permissionable_roles
+            Sanction::Role.over(self)
+          end
  
           has_many :specific_permissionable_roles, :as => :permissionable, :class_name => "Sanction::Role", :dependent => :destroy
         }

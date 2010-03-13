@@ -31,7 +31,7 @@ module Sanction
       module InstanceMethods
         protected
         def give_global_role(role_name)
-          role_to_create = self.principal_roles.build(:name => role_name.to_s, :global => true)
+          role_to_create = self.specific_principal_roles.build(:name => role_name.to_s, :global => true)
           role_to_create.save
         end
         
@@ -39,10 +39,10 @@ module Sanction
           raise Sanction::Role::Error::UnknownPermissionable.new(over) unless Sanction::Role::Definition.valid_permissionable? over
 
           if(over.class == Class)
-            role_to_create = self.principal_roles.build(:name => role_name.to_s, :permissionable_id => nil, :permissionable_type => over.to_s)
+            role_to_create = self.specific_principal_roles.build(:name => role_name.to_s, :permissionable_id => nil, :permissionable_type => over.to_s)
             role_to_create.save
           else
-            role_to_create = self.principal_roles.build(:name => role_name.to_s, :permissionable_id => over.id, :permissionable_type => over.class.to_s)
+            role_to_create = self.specific_principal_roles.build(:name => role_name.to_s, :permissionable_id => over.id, :permissionable_type => over.class.to_s)
             role_to_create.save
           end
         end  

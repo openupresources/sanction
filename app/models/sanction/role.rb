@@ -46,38 +46,50 @@ class Sanction::Role < ActiveRecord::Base
   #--------------------------------------------------#
   named_scope :global, :conditions => {:global => true } 
 
-  # Expects an array of Permissionable instances.
-  named_scope :for_permissionables, lambda {|permissionable_set|
-    permissionable_set = [permissionable_set] unless permissionable_set.is_a? Array
-
+  # Expects an array of Permissionable instances or klasses
+  named_scope :over, lambda {|*permissionable_set|
     permissionables_by_klass = {}
+    blanket_permissionables = []
     permissionable_set.each do |perm|
-      permissionables_by_klass[perm.class.name.to_s] ||= []
-      permissionables_by_klass[perm.class.name.to_s] << perm.id
+      if perm.is_a? Class
+        blanket_permissionables << perm.name.to_s
+      else
+        permissionables_by_klass[perm.class.name.to_s] ||= []
+        permissionables_by_klass[perm.class.name.to_s] << perm.id
+      end
     end
-
+     
     conds = []
     permissionables_by_klass.each do |(klass, ids)|
       conds << ["roles.permissionable_type = ? AND (roles.permissionable_id IN (?) OR roles.permissionable_id IS NULL)", klass, ids]
+    end
+    blanket_permissionables.each do |klass|
+      conds << ["roles.permissionable_type = ?", klass]
     end
     conditions = conds.map { |c| merge_conditions(c) }.join(" OR ")
  
     {:select => "DISTINCT roles.*", :conditions => conditions}
   }
 
-  # Expects an array of Principal instances.
-  named_scope :for_principals, lambda {|principal_set|
-    principal_set = [principal_set] unless principal_set.is_a? Array
-
+  # Expects an array of Principal instances or klasses
+  named_scope :for, lambda {|*principal_set|
     pricipals_by_klass = {}
+    blanket_principals = []
     principal_set.each do |prin|
-      pricipals_by_klass[prin.class.name.to_s] ||= []
-      pricipals_by_klass[prin.class.name.to_s] << prin.id
+      if prin.is_a? Class
+        blanket_principals << prin.name.to_s
+      else
+        pricipals_by_klass[prin.class.name.to_s] ||= []
+        pricipals_by_klass[prin.class.name.to_s] << prin.id
+      end
     end
 
     conds = []
     pricipals_by_klass.each do |(klass, ids)|
       conds << ["roles.principal_type = ? AND (roles.principal_id IN (?) OR roles.principal_id IS NULL)", klass, ids]
+    end
+    blanket_principals.each do |klass|
+      conds << ["roles.principal_type = ?", klass]
     end
     conditions = conds.map { |c| merge_conditions(c) }.join(" OR ")
 

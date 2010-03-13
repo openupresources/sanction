@@ -470,4 +470,28 @@ class SanctionTest < Test::Unit::TestCase
      assert Magazine.unauthorize(:reader, Person)
      assert Sanction::Role.count(:all) == 0
   end
+
+#--------------------------------------------------#
+#               Associations                       #
+#--------------------------------------------------#
+
+  def test_principal_roles_and_permissionable_roles_assoc
+    person = Person.create
+    magazine = Magazine.create
+ 
+    assert person.grant(:editor, magazine) 
+    assert person.principal_roles.size == 1
+    assert magazine.permissionable_roles.size == 1
+
+    assert person.principal_roles.over(magazine).size == 1
+    assert magazine.permissionable_roles.for(person).size == 1
+    
+    assert person.principal_roles.over(magazine).map(&:name).include?( "editor" )
+    assert magazine.permissionable_roles.for(person).map(&:name).include?( "editor" )
+
+    assert person.revoke(:editor, magazine)
+  
+    magazine.destroy
+    person.destroy
+  end
 end
