@@ -4,6 +4,8 @@ module Sanction
     ROLE_ALIAS = "sanction_principal_role_query"
     def self.included(base) 
       base.extend Sanction::Principal::Base
+      base.extend Sanction::Extensions::Preload  
+
       base.send(:include, Sanction::Principal::Has)
       base.send(:include, Sanction::Principal::Over)
       

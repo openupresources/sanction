@@ -11,19 +11,7 @@ module Sanction
             if role_names.include? Sanction::Role::Definition::ANY_TOKEN
               {:conditions => [ROLE_ALIAS + ".name IS NOT NULL"]} if role_names.include? :any
             else
-              role_names.map! do |role_or_permission|
-                roles_to_look_for = []
-                potential_permission_to_roles = Sanction::Role::Definition.permission_to_roles_for_permissionable(role_or_permission, base)
-                roles_to_look_for << potential_permission_to_roles.map(&:name) unless potential_permission_to_roles.blank?
-           
-                potential_roles = Sanction::Role::Definition.with(role_or_permission) & (Sanction::Role::Definition.over(base) | Sanction::Role::Definition.globals)
-                roles_to_look_for << potential_roles.map(&:name) unless potential_roles.blank?
-
-                roles_to_look_for << role_or_permission if roles_to_look_for.blank?
-                roles_to_look_for
-              end
-              role_names.flatten!
-              role_names.uniq!
+              role_names = Sanction::Role::Definition.process_role_or_permission_names_for_permissionable(base, *role_names)
 
               conditions = role_names.map {|r| base.merge_conditions(["#{ROLE_ALIAS}.name = ?", r.to_s])}.join(" OR ")
               {:conditions => conditions}
@@ -55,7 +43,23 @@ module Sanction
       
       module InstanceMethods
         def with(*role_names)
-          self.class.as_permissionable(self).with_scope_method(*role_names)
+          if self.permissionable_roles_loaded?
+            blank_result = true
+            if role_names.include? Sanction::Role::Definition::ANY_TOKEN 
+              blank_result = false unless self.permissionable_roles.blank?
+            else
+              p_roles = Sanction::Role::Definition.process_role_or_permission_names_for_permissionable(self.class, *role_names).map(&:to_sym)
+              blank_result = false unless self.permissionable_roles.detect { |r| p_roles.include? r.name.to_sym }.blank?
+            end
+
+            if blank_result
+              Sanction::Result::BlankArray.construct(self)
+            else
+              Sanction::Result::SingleArray.construct(self)
+            end
+          else
+            self.class.as_permissionable(self).with_scope_method(*role_names)
+          end
         end
 
         def with?(*role_names)
@@ -63,7 +67,7 @@ module Sanction
         end
         
         def with_all?(*role_names)
-          !self.class.as_permissionable(self).with_all?(*role_names)
+          !role_names.map {|r| with(r)}.inject(&:&).blank? 
         end         
       end
     end

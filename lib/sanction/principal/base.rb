@@ -2,13 +2,29 @@ module Sanction
   module Principal
     module Base
       def self.extended(base)
-        base.class_eval %q{
+        base.class_eval %Q{
           def principal_roles
-            Sanction::Role.for(self)
+            @principal_roles ||= Sanction::Role.for(self)
           end
-         
+
+          def principal_roles=(principal_roles)
+            @principal_roles = principal_roles
+          end
+
+          def principal_roles_loaded?
+            @principal_roles_loaded ||= false
+          end
+ 
+          def principal_roles_loaded
+            @principal_roles_loaded = true
+          end
+
           def self.principal_roles
             Sanction::Role.for(self)
+          end
+  
+          def self.is_a_principal?
+            true
           end
 
           has_many :specific_principal_roles, :as => :principal, :class_name => "Sanction::Role", :dependent => :destroy

@@ -26,19 +26,6 @@ module Sanction
               {:conditions => conditions}
             end
           }
-          base.named_scope :for_all_single_argument, lambda {|arg|
-            if arg == Sanction::Role::Definition::ANY_TOKEN
-              {:conditions => ["#{ROLE_ALIAS}.principal_type IS NOT NULL"]}
-            else
-              raise Sanction::Role::Error::UnknownPrincipal.new("Unknown principal: #{arg}") unless Sanction::Role::Definition.valid_principal? ar
-
-              if arg.is_a? Class
-                {:conditions => ["#{ROLE_ALIAS}.principal_type = ? AND #{ROLE_ALIAS}.principal_id IS NULL", arg.name.to_s]}
-              else
-                {:conditions => ["#{ROLE_ALIAS}.principal_type = ? AND (#{ROLE_ALIAS}.principal_id = ? OR #{ROLE_ALIAS}.principal_id IS NULL)", arg.class.name.to_s, arg.id]}
-              end
-            end
-          }
         end
         
         def for(*args)
@@ -50,30 +37,41 @@ module Sanction
         end
 
         def for_all?(*args)
-          result = nil
-          args.each do |arg|
-            if result.nil?
-              result = self.for_all_single_argument(arg)
-            else
-              result = result & self.for_all_single_argument(arg)
-            end
-          end
-         
-          !result.blank?
+          !args.map {|a| self.for(a)}.inject(&:&).blank?
         end
       end
       
       module InstanceMethods           
         def for(*args)
-          self.class.as_permissionable(self).for_scope_method(*args)
+          if self.permissionable_roles_loaded?
+            found_for = false
+ 
+            if args.include? Sanction::Role::Definition::ANY_TOKEN
+              found_for = true if self.permissionable_roles.detect {|r| r.principal_type != nil}
+            else
+              args.each do |a|
+                raise Sanction::Role::Error::UnknownPrincipal.new("Unknown principal: #{a}") unless Sanction::Role::Definition.valid_principal? a 
+
+                found_for = true if self.permissionable_roles.detect {|r| r.principal_match? a}
+              end
+            end
+
+            if found_for
+              Sanction::Result::SingleArray.construct(self)
+            else
+              Sanction::Result::BlankArray.construct(self)
+            end
+          else
+            self.class.as_permissionable(self).for_scope_method(*args)
+          end
         end
 
         def for?(*args)
           !self.for(*args).blank?
         end        
-      
+
         def for_all?(*args)
-          !self.class.as_permissionable(self).for_all?(*args)
+          !args.map {|a| self.for(a)}.inject(&:&).blank?
         end
       end
     end

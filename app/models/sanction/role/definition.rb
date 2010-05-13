@@ -66,11 +66,41 @@ module Sanction
         (roles_by_permission[permission_name] || []) + (wildcard_roles || [])
       end
 
+      def self.process_role_or_permission_names_for_permissionable(permissionable, *role_or_permission_names)
+        role_or_permission_names.map do |role_or_permission|
+          roles_to_look_for = []
+          potential_permission_to_roles = Sanction::Role::Definition.permission_to_roles_for_permissionable(role_or_permission, permissionable)
+          roles_to_look_for << potential_permission_to_roles.map(&:name) unless potential_permission_to_roles.blank?
+    
+          # Globals are removed from permissionable candidates 
+          potential_roles = Sanction::Role::Definition.with(role_or_permission) & (Sanction::Role::Definition.over(permissionable) | Sanction::Role::Definition.globals)
+          roles_to_look_for << potential_roles.map(&:name) unless potential_roles.blank?
+
+          roles_to_look_for << role_or_permission if roles_to_look_for.blank?
+          roles_to_look_for
+        end.flatten.uniq
+      end
+
+      def self.process_role_or_permission_names_for_principal(principal, *role_or_permission_names)
+        role_or_permission_names.map do |role_or_permission|
+          roles_to_look_for = []
+          potential_permission_to_roles = Sanction::Role::Definition.permission_to_roles_for_principal(role_or_permission, principal)
+          roles_to_look_for << potential_permission_to_roles.map(&:name) unless potential_permission_to_roles.blank?
+
+          potential_roles = Sanction::Role::Definition.with(role_or_permission) & Sanction::Role::Definition.for(principal)
+          roles_to_look_for << potential_roles.map(&:name) unless potential_roles.blank?
+
+          roles_to_look_for << role_or_permission if roles_to_look_for.blank?
+          roles_to_look_for
+        end.flatten.uniq
+      end
+
       def self.permission_to_roles_for_principal(permission_name, principal)
         self.with_permission(permission_name) & self.for(principal)
       end
 
       def self.permission_to_roles_for_permissionable(permission_name, permissionable)
+        # Globals are removed from permissionable candidates
         self.with_permission(permission_name) & (self.over(permissionable) | self.globals)
       end
 

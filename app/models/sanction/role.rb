@@ -111,6 +111,22 @@ class Sanction::Role < ActiveRecord::Base
     end
   end
  
+  def principal_match?(instance_or_klass)
+    if instance_or_klass.is_a? Class
+      self.principal_type == instance_or_klass.name
+    else
+      self.principal_type == instance_or_klass.class.name and (self.principal_id.to_s == instance_or_klass.send(instance_or_klass.class.primary_key).to_s or self.principal_id == nil)
+    end
+  end
+
+  def permissionable_match?(instance_or_klass)
+    if instance_or_klass.is_a? Class
+      self.permissionable_type == instance_or_klass.name
+    else
+      self.permissionable_type == instance_or_klass.class.name and (self.permissionable_id.to_s == instance_or_klass.send(instance_or_klass.class.primary_key).to_s or self.permissionable_id == nil)
+    end
+  end
+ 
   # Provides a basic description of the role.
   def describe
     prefix = ""

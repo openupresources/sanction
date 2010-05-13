@@ -55,8 +55,6 @@ Be sure to rake db:migrate to produce the roles table.
 To run the Sanction test suite, which was generated with the help of plugin_a_week's plugin_test_helper, step into the
 vendor/plugins/sanction and run rake test.
 
-You can also view the result of the last test build online @ http://runcoderun.com/matthewvermaak
-
 =Config
 
 ===Example
@@ -209,6 +207,19 @@ Each of the following methods are injected at the instance and class level. (Exc
 
   [Only as a Class Method]
   For the COUNT QUIRK.
+
+<b>Eager Loading / Preloading</b>
+
+Consider the use case of querying for a result set, and driling into that set with role based questions at the instance level.
+To avoid 1+N query related performance issues, you can:
+
+  @people = Person.find(:all, :preload_roles => true)
+
+Subsequent calls to the Sanction API on those instances will no longer query the DB, but instead use the preloaded cache.
+
+  @people.each do |person|
+    person.has?(:some_role) # Does NOT hit the DB
+  end
 
 <b>Rake tasks</b>
 

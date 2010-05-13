@@ -2,9 +2,10 @@
 module Sanction
   module Permissionable
     ROLE_ALIAS = "sanction_permissionable_role_query"
-
     def self.included(base)
-      base.extend(Sanction::Permissionable::Base)
+      base.extend Sanction::Permissionable::Base
+      base.extend Sanction::Extensions::Preload
+
       base.send(:include, Sanction::Permissionable::With)
       base.send(:include, Sanction::Permissionable::For)
 

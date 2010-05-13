@@ -4,11 +4,27 @@ module Sanction
       def self.extended(base)
         base.class_eval %q{
           def permissionable_roles
-            Sanction::Role.over(self)
+            @permissionable_roles ||= Sanction::Role.over(self)
+          end
+  
+          def permissionable_roles=(permissionable_roles)
+            @permissionable_roles = permissionable_roles
+          end
+
+          def permissionable_roles_loaded?
+            @permissionable_roles_loaded ||= false
+          end
+  
+          def permissionable_roles_loaded
+            @permissionable_roles_loaded = true
           end
  
           def self.permissionable_roles
             Sanction::Role.over(self)
+          end
+ 
+          def self.is_a_permissionable?
+            true
           end
  
           has_many :specific_permissionable_roles, :as => :permissionable, :class_name => "Sanction::Role", :dependent => :destroy
