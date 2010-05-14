@@ -134,11 +134,6 @@ Each of the following methods are injected at the instance and class level.
 
   the boolean form of has, returns true/false.
 
-* <tt>has_all?(*roles)</tt>
-
-  You can end a "sentence" with this method, allowing you to ask for ALL roles to be present. This is a more expensive operation, conducting a search on each role supplied as an argument.
-  The nature of the _all methods prevents further chaining.
-
 * <tt>over(*permissionables)</tt>
 
   provide any number of permissionable instances or Klasses. This is interpretted as asking for principals having permissions over any of these permissionables. Returns the principal
@@ -147,11 +142,6 @@ Each of the following methods are injected at the instance and class level.
 * <tt>over?(*permissionables)</tt>
 
   The boolean form of over, returns true/false.
-
-* <tt>over_all?(*permissionables)</tt>
-
-  You can end a "sentence" with this method, allowing you to ask for a principal who has permission over ALL of these permisisonables. Again, this is subject to the _all
-  exception, in that this method prevents further chaining.
 
 * <tt>grant(role_name, permissionable = nil)</tt>
 
@@ -179,10 +169,6 @@ Each of the following methods are injected at the instance and class level. (Exc
 
   The boolean form of with(*roles), returns true/false.
 
-* <tt>with_all?(*roles)</tt>
-
-  The _all version of with(*roles).
-
 * <tt>for(*principals)</tt>
 
   Provide any number of principals, for which you are searching for having a role/permission over the root permissionable.
@@ -190,10 +176,6 @@ Each of the following methods are injected at the instance and class level. (Exc
 * <tt>for?(*principals)</tt>
 
   The boolean form for for(*principals), returns true/false.
-
-* <tt>for_all?(*principals)</tt>
-
-  The _all version of for(*principals).
 
 * <tt>authorize(role_name, principal)</tt>
 

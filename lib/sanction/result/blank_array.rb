@@ -15,13 +15,13 @@ module Sanction
           if @decoy.class.respond_to? :is_a_principal? and @decoy.class.is_a_principal?
             if [:has, :over].include? m
               Sanction::Result::BlankArray.construct(@decoy)
-            elsif [:has?, :has_all?, :over?, :over_all?].include? m
+            elsif [:has?, :over?].include? m
               false
             end
           elsif @decoy.class.respond_to? :is_a_permissionable? and @decoy.class.is_a_permissionable?
             if [:with, :for].include? m
               Sanction::Result::BlankArray.construct(@decoy)
-            elsif [:with?, :with_all?, :for?, :for_all?].include? m
+            elsif [:with?, :for?].include? m
               false
             end
           else

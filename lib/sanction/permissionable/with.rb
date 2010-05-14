@@ -26,19 +26,6 @@ module Sanction
         def with?(*role_names)
           !with(*role_names).blank?
         end
-                
-        def with_all?(*role_names)
-          result = nil
-          role_names.each do |role|
-            if result.nil?
-              result = self.with(role)
-            else
-              result = result & self.with(role)
-            end
-          end
-
-          !result.blank?
-        end
       end
       
       module InstanceMethods
@@ -65,10 +52,6 @@ module Sanction
         def with?(*role_names)
           !with(*role_names).blank? 
         end
-        
-        def with_all?(*role_names)
-          !role_names.map {|r| with(r)}.inject(&:&).blank? 
-        end         
       end
     end
   end

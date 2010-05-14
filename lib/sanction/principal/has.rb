@@ -27,19 +27,6 @@ module Sanction
         def has?(*role_names)
           !has(*role_names).blank?
         end
-                
-        def has_all?(*role_names)
-          result = nil
-          role_names.each do |role|
-            if(result.nil?) 
-              result = self.has(role)
-            else
-              result = result & has(role)
-            end
-          end
-          
-          !result.blank?
-        end
       end
       
       module InstanceMethods
@@ -66,10 +53,6 @@ module Sanction
         def has?(*role_names)
           !has(*role_names).blank? 
         end
-        
-        def has_all?(*role_names)
-          !role_names.map {|r| has(r)}.inject(&:&).blank?
-        end         
       end
     end
   end

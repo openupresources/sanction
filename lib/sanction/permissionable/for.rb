@@ -35,10 +35,6 @@ module Sanction
         def for?(*args)
           !self.for(*args).blank?
         end
-
-        def for_all?(*args)
-          !args.map {|a| self.for(a)}.inject(&:&).blank?
-        end
       end
       
       module InstanceMethods           
@@ -69,10 +65,6 @@ module Sanction
         def for?(*args)
           !self.for(*args).blank?
         end        
-
-        def for_all?(*args)
-          !args.map {|a| self.for(a)}.inject(&:&).blank?
-        end
       end
     end
   end

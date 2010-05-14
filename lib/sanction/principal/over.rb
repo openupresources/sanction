@@ -34,10 +34,6 @@ module Sanction
         def over?(*args)
           !over(*args).blank?
         end
-
-        def over_all?(*args)
-          !args.map {|a| over(a)}.inject(&:&).blank?
-        end
       end
         
       module ClassMethods
@@ -68,10 +64,6 @@ module Sanction
         
         def over?(*args)
           !over(*args).blank?
-        end
- 
-        def over_all?(*args)
-          !args.map {|a| over(a)}.inject(&:&).blank?
         end
       end
     end

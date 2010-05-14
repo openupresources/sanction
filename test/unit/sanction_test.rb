@@ -277,10 +277,6 @@ class SanctionTest < Test::Unit::TestCase
     assert Person.has?(:editor)
     assert Person.has?(:writer)
 
-    assert Person.has_all?(:editor, :writer)
-    assert Person.over(Magazine).has_all?(:editor, :writer)
-    assert Person.over(Magazine.first).has_all?(:editor, :writer)
-   
     assert Person.has(:editor).over?(Magazine)
     assert Person.has(:writer).over?(Magazine)
 
@@ -302,8 +298,6 @@ class SanctionTest < Test::Unit::TestCase
     assert Person.first.grant(:editor, Magazine.last)
     assert Sanction::Role.count(:all) == 2
 
-    assert Person.has(:editor).over_all?(Magazine.first, Magazine.last)
-    assert Person.first.has(:editor).over_all?(Magazine.first, Magazine.last)
 
     assert Person.first.revoke(:editor, Magazine.first)
     assert Person.first.revoke(:editor, Magazine.last)
@@ -589,59 +583,5 @@ class SanctionTest < Test::Unit::TestCase
     end
 
     assert !Person.first.has?(:reader)
-  end
-
-  def test_has_all_with_preloaded_roles
-    Person.grant(:reader, Magazine)
-    Person.grant(:editor, Magazine)
-
-    person = Person.first :preload_roles => true
-
-    Person.revoke(:reader, Magazine)
-    Person.revoke(:editor, Magazine)
-
-    assert person.has_all?(:reader, :editor)
-    assert !Person.first.has_all?(:reader, :editor)
-    assert !person.has_all?(:reader, :editor, :owner)
-  end
- 
-  def test_with_all_with_preloaded_roles
-    Person.grant(:reader, Magazine)
-    Person.grant(:editor, Magazine)
-
-    magazine = Magazine.first :preload_roles => true
-
-    Person.revoke(:reader, Magazine)
-    Person.revoke(:editor, Magazine)
-
-    assert magazine.with_all?(:reader, :editor)
-    assert !Magazine.first.with_all?(:reader, :editor)
-    assert !magazine.with_all?(:reader, :editor, :owner)
-  end
-
-  def test_over_all_with_prelaoded_roles
-    Person.grant(:reader, Magazine)
-
-    person = Person.first :preload_roles => true
-
-    assert Person.first.over_all?(Magazine.first, Magazine.last)
-
-    Person.revoke(:reader, Magazine)
-
-    assert person.over_all?(Magazine.first, Magazine.last)
-    assert !Person.first.over_all?(Magazine.first, Magazine.last)
-  end
-
-  def test_for_all_with_preloaded_roles
-    Person.grant(:reader, Magazine)
-
-    magazine = Magazine.first :preload_roles => true
-
-    assert Magazine.first.for_all?(Person.first, Person.last)
-
-    Person.revoke(:reader, Magazine)
-
-    assert magazine.for_all?(Person.first, Person.last)
-    assert !Magazine.first.for_all?(Person.first, Person.last)
   end
 end
