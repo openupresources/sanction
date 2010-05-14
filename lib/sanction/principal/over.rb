@@ -25,7 +25,7 @@ module Sanction
         private
         def preload_over(*args)
           if args.include? Sanction::Role::Definition::ANY_TOKEN
-            self.principal_roles.self {|r| r.permissionable_type != nil}
+            self.principal_roles.select {|r| r.permissionable_type != nil}
           else
             p_roles = []
             args.each do |a|
