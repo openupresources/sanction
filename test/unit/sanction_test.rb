@@ -613,4 +613,15 @@ class SanctionTest < Test::Unit::TestCase
     assert person.has(:any).over?(:any)
     assert magazine.for(:any).with?(:any)
   end
+
+  def test_blank_array_result_with_principal_permissionable
+    Person.last.grant(:tester, Person.first)
+
+    person = Person.first :preload_roles => true
+    
+    Person.last.revoke(:tester, Person.first)
+
+    assert !person.with(:non_role).for?(:any)
+    assert person.with(:tester).for?(:any)
+  end
 end
