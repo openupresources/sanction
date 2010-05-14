@@ -1,6 +1,5 @@
-1.2.1
-* Collection methods to Sanction::Role::Definition
-* Add warnings in configuration
 1.2.0
 * Brings preloading of roles as an option. Person.find(:all, :preload_roles => true)
 * Uniformly treats class parameters across API, including *_all? methods.
+* Collection methods to Sanction::Role::Definition
+* Add warnings in configuration
