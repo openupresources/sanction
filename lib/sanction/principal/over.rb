@@ -8,24 +8,11 @@ module Sanction
       
       module InstanceMethods
         def over(*args)
+          args ||= Sanction::Role::Definition::ANY_TOKEN
+
           if self.principal_roles_loaded?
-            found_over = false
-
-            if args.include? Sanction::Role::Definition::ANY_TOKEN
-              found_over = true if self.principal_roles.detect {|r| r.permissionable_type != nil}
-            else
-              args.each do |a|
-                raise Sanction::Role::Error::UnknownPermissionable.new("Unknown permissionable: #{a}") unless Sanction::Role::Definition.valid_permissionable? a 
-
-                found_over = true if self.principal_roles.detect {|r| r.permissionable_match? a}
-              end
-            end
-
-            if found_over
-              Sanction::Result::SingleArray.construct(self)
-            else
-              Sanction::Result::BlankArray.construct(self)
-            end
+            self.preload_scope_merge({:preload_over => args})
+            self.execute_preload_scope
           else
             self.class.as_principal(self).over_scope_method(*args)
           end
@@ -33,6 +20,21 @@ module Sanction
 
         def over?(*args)
           !over(*args).blank?
+        end
+
+        private
+        def preload_over(*args)
+          if args.include? Sanction::Role::Definition::ANY_TOKEN
+            self.principal_roles.self {|r| r.permissionable_type != nil}
+          else
+            p_roles = []
+            args.each do |a|
+              raise Sanction::Role::Error::UnknownPermissionable.new("Unknown permissionable: #{a}") unless Sanction::Role::Definition.valid_permissionable? a 
+
+              p_roles << self.principal_roles.select {|r| r.permissionable_match? a}
+            end
+            p_roles.flatten.uniq
+          end
         end
       end
         

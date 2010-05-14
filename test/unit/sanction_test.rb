@@ -584,4 +584,19 @@ class SanctionTest < Test::Unit::TestCase
 
     assert !Person.first.has?(:reader)
   end
+
+  def test_preload_roles_with_multiples
+     Person.first.grant(:writer, Magazine.first)
+     Person.first.grant(:editor, Magazine.last)
+ 
+     person = Person.first :preload_roles => true
+   
+     Person.first.revoke(:writer, Magazine.first)
+     Person.first.revoke(:editor, Magazine.last)
+
+     assert person.has(:writer).over?(Magazine.first)
+     assert person.has(:editor).over?(Magazine.last)
+     assert !person.has(:editor).over?(Magazine.first)
+     assert !person.has(:writer).over?(Magazine.last)
+  end
 end

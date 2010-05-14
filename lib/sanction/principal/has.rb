@@ -31,20 +31,11 @@ module Sanction
       
       module InstanceMethods
         def has(*role_names)
-          if self.principal_roles_loaded?
-            blank_result = true
-            if role_names.include? Sanction::Role::Definition::ANY_TOKEN 
-              blank_result = false unless self.principal_roles.blank?
-            else
-              p_roles = Sanction::Role::Definition.process_role_or_permission_names_for_principal(self.class, *role_names).map(&:to_sym)
-              blank_result = false unless self.principal_roles.detect { |r| p_roles.include? r.name.to_sym }.blank?
-            end
+          role_names ||= Sanction::Role::Definition::ANY_TOKEN
 
-            if blank_result
-              Sanction::Result::BlankArray.construct(self)
-            else
-              Sanction::Result::SingleArray.construct(self)
-            end
+          if self.principal_roles_loaded?
+            self.preload_scope_merge({:preload_has => role_names})
+            self.execute_preload_scope
           else
             self.class.as_principal(self).has_scope_method(*role_names)
           end
@@ -52,6 +43,16 @@ module Sanction
         
         def has?(*role_names)
           !has(*role_names).blank? 
+        end
+        
+        private
+        def preload_has(*role_names)
+          if role_names.include? Sanction::Role::Definition::ANY_TOKEN 
+            self.principal_roles
+          else
+            p_roles = Sanction::Role::Definition.process_role_or_permission_names_for_principal(self.class, *role_names).map(&:to_sym)
+            self.principal_roles.select { |r| p_roles.include? r.name.to_sym }
+          end
         end
       end
     end

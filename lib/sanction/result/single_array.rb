@@ -1,16 +1,16 @@
 module Sanction
   module Result
-    class SingleArray
-      def self.construct(decoy)
-        a = [decoy]
-        a.instance_variable_set(:@decoy, decoy)
-        (class << a; self; end).send(:include, MethodMissing)
-        a
+    class SingleArray < BlankSlate
+      def initialize(decoy)
+        @decoy = decoy
       end
 
-      module MethodMissing 
-        def method_missing(m, *args)
+      def method_missing(m, *args)
+        if [:has, :for, :over, :with, :has?, :for?, :over?, :with?].include? m
           @decoy.send(m, *args)
+        else
+          @decoy.reset_preload_scope
+          [@decoy].send(m, *args)
         end
       end
     end

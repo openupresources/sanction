@@ -6,10 +6,21 @@ module Sanction
       PRELOAD_PERMISSIONABLE_ROLES = :preload_permissionable_roles
       PRELOAD_OPTIONS = [PRELOAD_ROLES, PRELOAD_PRINCIPAL_ROLES, PRELOAD_PERMISSIONABLE_ROLES]
 
-      def find(*args)
+      def self.extended(base)
+        unless base.respond_to? :find_without_preloaded_roles
+          base.class_eval %Q{
+            class << self
+              alias_method_chain :find, :preloaded_roles
+            end
+          } 
+        end
+        base.send :include, Scope
+      end
+
+      def find_with_preloaded_roles(*args)
         if args.last.respond_to? :keys and !(args.last.keys & PRELOAD_OPTIONS).blank?
           preload = process_preload_options(args.last)
-          results = super
+          results = find_without_preloaded_roles(*args)
           
           if preload[:roles] == true
             preload_roles_for(results)
@@ -25,7 +36,7 @@ module Sanction
 
           results
         else
-          super
+          find_without_preloaded_roles(*args)
         end
       end
 
@@ -86,6 +97,43 @@ module Sanction
           end
         end
         results
+      end
+
+      module Scope
+        def preload_scope
+          @preload_scope ||= Hash.new([])
+        end
+  
+        def preload_scope=(pscope)
+          @preload_scope = pscope
+        end
+
+        def reset_preload_scope
+          @preload_scope = Hash.new([])
+        end
+
+        protected
+        def preload_scope_merge(pscope = Hash.new([]))
+          [:preload_has, :preload_with, :preload_for, :preload_over].each do |m|
+            self.preload_scope[m] = pscope[m] unless pscope[m].blank?
+          end
+        end
+
+        def execute_preload_scope
+          result_set = self.preload_scope.inject(nil) do |result_set, (preload_method, preload_arguments)| 
+            if result_set.nil?
+              result_set = self.send(preload_method, *preload_arguments)
+            else 
+              result_set = result_set & self.send(preload_method, *preload_arguments)
+            end
+          end
+
+          if result_set.blank? 
+            Sanction::Result::BlankArray.new(self)
+          else
+            Sanction::Result::SingleArray.new(self)
+          end
+        end 
       end
     end
   end
