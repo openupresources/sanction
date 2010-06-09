@@ -4,3 +4,4 @@
 * Collection methods to Sanction::Role::Definition
 * Add warnings in configuration
 * Removes _all? methods
+* Remove backticks in total.rb

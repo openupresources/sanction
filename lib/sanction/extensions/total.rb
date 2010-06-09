@@ -10,7 +10,7 @@ module Sanction
 
         base.class_eval %Q{
           def self.#{method_name}(conditions = {})
-            count(:all, :select => "DISTINCT `#{base.table_name.to_s}`.`#{base.primary_key.to_s}`", :conditions => conditions)
+            count(:all, :select => "DISTINCT #{base.table_name.to_s}.#{base.primary_key.to_s}", :conditions => conditions)
           end
         }
       end 
