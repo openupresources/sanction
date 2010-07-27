@@ -40,9 +40,11 @@ module Sanction
 
           if(over.class == Class)
             role_to_create = self.specific_principal_roles.build(:name => role_name.to_s, :permissionable_id => nil, :permissionable_type => over.to_s)
+            role_to_create.principal_type = self.class.name
             role_to_create.save
           else
             role_to_create = self.specific_principal_roles.build(:name => role_name.to_s, :permissionable_id => over.id, :permissionable_type => over.class.to_s)
+            role_to_create.principal_type = self.class.name
             role_to_create.save
           end
         end  
