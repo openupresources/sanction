@@ -74,13 +74,13 @@ module Sanction
 
   def self.inject_principals!
     self.principals.each do |principal|
-      principal.name.to_s.constantize.send(:include, Sanction::Principal)
+      principal.to_s.constantize.send(:include, Sanction::Principal)
     end
   end
   
   def self.inject_permissionables!
     self.permissionables.each do |permissionable|
-      permissionable.name.to_s.constantize.send(:include, Sanction::Permissionable)
+      permissionable.to_s.constantize.send(:include, Sanction::Permissionable)
     end
   end
 end
