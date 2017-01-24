@@ -5,8 +5,8 @@ require_relative '../app/models/sanction/role'
 # the injections will take place based on these class vars.
 #
 module Sanction
-  require 'sanction/engine'
 
+  require 'sanction/engine'
 
 #--------------------------------------------------#
 #                   Public Api                     #
@@ -15,13 +15,13 @@ module Sanction
     return if self.has_been_configured?
 
     self.has_been_configured = true
-    
+
     begin
       yield self
     rescue ActiveRecord::StatementInvalid => e
       puts "WARNING: Class not defined, got an error #{e.message}"
     end
-  
+
     do_injections!
   end
 
@@ -29,7 +29,7 @@ module Sanction
   # Defining a role take the form:
   #  config.role :editor, [A, B] => [C, D], :having => [:can_edit]
   #  config.role :admin, [A, B] => [C, D], :includes => [:editor]
-  #  
+  #
   def self.role(role_name, relationship_and_options)
     Sanction::Role::Definition.new(role_name, relationship_and_options)
   end
@@ -37,7 +37,7 @@ module Sanction
   def self.version
     Sanction::VERSION
   end
-  
+
   #--------------------------------------------------#
   #                   Class Vars                     #
   #--------------------------------------------------#
@@ -64,7 +64,7 @@ module Sanction
     def self.has_been_configured?
       @@has_been_configured ||= false
     end
-  
+
   private
   #--------------------------------------------------#
   #                   injections                     #
@@ -82,7 +82,7 @@ module Sanction
       principal.to_s.constantize.send(:include, Sanction::Principal)
     end
   end
-  
+
   def self.inject_permissionables!
     self.permissionables.each do |permissionable|
       permissionable.to_s.constantize.send(:include, Sanction::Permissionable)

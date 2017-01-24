@@ -1,4 +1,3 @@
-
 # Instances of Roles within the system. Uses double-sided polymorphism to attribute
 # roles to principals over permissionables. Allows blanket class attributation.
 #
@@ -15,7 +14,6 @@ class Sanction::Role < ActiveRecord::Base
   validates_presence_of :name
 
   validate :valid_role_definition
-
   validate :uniqueness_of_intent, on: :create
 
   # Ensure the role is valid by definition
@@ -31,6 +29,7 @@ class Sanction::Role < ActiveRecord::Base
 
     if global?
       conds << ["#{self.class.table_name}.global = ?", true]
+
     else
       conds << ["#{self.class.table_name}.permissionable_type = ? AND (#{self.class.table_name}.permissionable_id = ? OR #{self.class.table_name}.permissionable_id IS NULL)", permissionable_type, (permissionable_id || nil)]
     end
@@ -81,6 +80,7 @@ class Sanction::Role < ActiveRecord::Base
     permissionables_by_klass.each do |(klass, ids)|
       conds << ["#{self.table_name}.permissionable_type = ? AND (#{self.table_name}.permissionable_id IN (?) OR #{self.table_name}.permissionable_id IS NULL)", klass, ids]
     end
+
     blanket_permissionables.each do |klass|
       conds << ["#{self.table_name}.permissionable_type = ?", klass]
     end
@@ -106,6 +106,7 @@ class Sanction::Role < ActiveRecord::Base
     pricipals_by_klass.each do |(klass, ids)|
       conds << ["#{self.table_name}.principal_type = ? AND (#{self.table_name}.principal_id IN (?) OR #{self.table_name}.principal_id IS NULL)", klass, ids]
     end
+
     blanket_principals.each do |klass|
       conds << ["#{self.table_name}.principal_type = ?", klass]
     end

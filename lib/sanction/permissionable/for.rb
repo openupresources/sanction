@@ -31,12 +31,13 @@ module Sanction
           self.as_permissionable_self.for_scope_method(*args)
         end
 
+
         def for?(*args)
           !self.for(*args).blank?
         end
       end
-
       module InstanceMethods
+
         def for(*args)
           args ||= Sanction::Role::Definition::ANY_TOKEN
 

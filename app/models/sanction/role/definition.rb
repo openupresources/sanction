@@ -18,7 +18,7 @@ module Sanction
 
       def initialize(name, relationship_and_options)
         self.name = name
-        
+
         relationship, options = extract_options(relationship_and_options)
 
         resolve_relationship(relationship)
@@ -40,11 +40,11 @@ module Sanction
       def self.wildcards
         wildcard_roles
       end
-      
+
       def global?
         !!self.global
       end
-       
+
       def wildcard?
         !!self.wildcard
       end
@@ -56,7 +56,7 @@ module Sanction
       def self.over(permissionable)
         roles_by_permissionable[permissionable.to_s] || []
       end
-      
+
       def self.with(name)
         roles_by_name[name.to_sym] || []
       end
@@ -70,8 +70,8 @@ module Sanction
           roles_to_look_for = []
           potential_permission_to_roles = Sanction::Role::Definition.permission_to_roles_for_permissionable(role_or_permission, permissionable)
           roles_to_look_for << potential_permission_to_roles.map(&:name) unless potential_permission_to_roles.blank?
-    
-          # Globals are removed from permissionable candidates 
+
+          # Globals are removed from permissionable candidates
           potential_roles = Sanction::Role::Definition.with(role_or_permission) & (Sanction::Role::Definition.over(permissionable) | Sanction::Role::Definition.globals)
           roles_to_look_for << potential_roles.map(&:name) unless potential_roles.blank?
 
@@ -110,7 +110,7 @@ module Sanction
         end
         if matches.size > 1
           raise Sanction::Role::Definition::Duplicate.new("Multiple Roles defined with: #{matches.first.describe}")
-        else 
+        else
           matches.first
         end
       end
@@ -126,14 +126,14 @@ module Sanction
         principal      = principal.class      unless (principal.nil?      or principal.is_a? Class)
         permissionable = permissionable.class unless (permissionable.nil? or permissionable.is_a? Class)
 
-        
+
         if valid_principal?(principal) and (permissionable.nil? or valid_permissionable?(permissionable)) and valid_role_name?(role_name)
           if permissionable
             !(self.for(principal) & self.with(role_name) & self.over(permissionable)).blank?
           else
             !(self.for(principal) & self.with(role_name)).blank?
           end
-        else 
+        else
           false
         end
       end
@@ -159,7 +159,7 @@ module Sanction
       end
 
       def self.valid_role_name?(role_name)
-       !self.with(role_name).blank? 
+       !self.with(role_name).blank?
       end
 
       def self.valid_permission_name?(permission_name)
@@ -171,7 +171,7 @@ module Sanction
       end
 
       def self.valid_permission_name_for_permissionable?(permission_name, permissionable)
-        !(self.with_permission(permission_name) & self.over(permissionable)).blank? 
+        !(self.with_permission(permission_name) & self.over(permissionable)).blank?
       end
 
       #--------------------------------------------------#
@@ -209,7 +209,7 @@ module Sanction
       #                   Class Vars                     #
       #--------------------------------------------------#
       cattr_accessor :roles_by_name, :roles_by_principal, :roles_by_permissionable, :global_roles, :names, :roles_by_permission, :all_roles, :wildcard_roles
-      
+
       self.all_roles               = []
       self.wildcard_roles          = []
       self.roles_by_name          = {}
@@ -238,7 +238,7 @@ module Sanction
         if relationship.keys.size > 1
           raise Sanction::Role::Definition::InvalidRoleConstruction.new("Role::Definitions only accept one relationship along with #{OPTION_KEYS.join(", ")} optional parameters.")
         end
-        
+
         [relationship, relationship_and_options]
       end
 
@@ -252,16 +252,16 @@ module Sanction
         if(arr == :all)
           self.principals = Sanction.principals.dup
         end
-    
+
         if self.principals.is_a? Array
           self.principals.map!(&:name)
-        else 
+        else
           self.principals = [self.principals.name]
         end
       end
 
       def attribute_permissionables(arr)
-        self.permissionables = arr 
+        self.permissionables = arr
         if(arr == :all)
           self.permissionables = Sanction.permissionables.dup
         elsif(arr == :global)
@@ -293,10 +293,10 @@ module Sanction
 
         self.includes += include_options unless include_options.blank?
       end
-     
+
       def establish_inheritance
         inherited_permissions = []
-        self.includes.each do |inc| 
+        self.includes.each do |inc|
           matched = Sanction::Role::Definition.match(self.principals, inc, self.permissionables)
           if matched.respond_to? :permissions
             inherited_permissions += (matched.permissions + [inc])
@@ -304,7 +304,7 @@ module Sanction
         end
         inherited_permissions.compact!
         inherited_permissions.uniq!
-     
+
         self.permissions += inherited_permissions unless inherited_permissions.blank?
       end
 
@@ -314,7 +314,7 @@ module Sanction
         establish_inheritance
 
         self.permissions = self.permissions.map(&:to_sym)
-       
+
         self.wildcard = true if self.permissions.include? :anything
       end
 
@@ -332,14 +332,14 @@ module Sanction
         cache_roles_by_permissionable!
         cache_roles_by_permission!
       end
-     
+
       def cache_roles_by_principal!
         self.principals.each do |p|
           roles_by_principal[p] ||= []
           roles_by_principal[p] << self
         end
       end
-      
+
       def cache_roles_by_permissionable!
         self.permissionables.each do |p|
           roles_by_permissionable[p] ||= []
@@ -351,28 +351,28 @@ module Sanction
         self.permissions.each do |permission|
           roles_by_permission[permission] ||= []
           roles_by_permission[permission] << self
-        end  
+        end
       end
-      
+
       def cache_roles_by_name!
         roles_by_name[self.name.to_sym] ||= []
         roles_by_name[self.name.to_sym] << self
       end
-      
+
       def cache_all!
         all_roles << self
       end
-      
+
       def cache_name!
         names    << self.name unless names.include? self.name
       end
 
       def cache_global!
         if self.global?
-          global_roles << self 
+          global_roles << self
         end
       end
-      
+
       def cache_wildcards!
         if self.wildcard?
           wildcard_roles << self

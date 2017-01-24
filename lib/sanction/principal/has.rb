@@ -3,6 +3,7 @@ module Sanction
     module Has
       def self.included(base)
         base.extend ClassMethods
+
         base.send(:include, InstanceMethods)
       end
 
@@ -46,6 +47,7 @@ module Sanction
         private
         def preload_has(*role_names)
           if role_names.include? Sanction::Role::Definition::ANY_TOKEN
+
             self.principal_roles
           else
             p_roles = Sanction::Role::Definition.process_role_or_permission_names_for_principal(self.class, *role_names).map(&:to_sym)

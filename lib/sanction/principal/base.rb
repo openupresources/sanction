@@ -44,6 +44,7 @@ module Sanction
             (#{ROLE_ALIAS}.principal_id = '#{klass_instance.id}' OR #{ROLE_ALIAS}.principal_id IS NULL) AND
             #{ROLE_ALIAS}.principal_type = '#{klass_instance.class.name}'"
           )
+
         }
       end
     end

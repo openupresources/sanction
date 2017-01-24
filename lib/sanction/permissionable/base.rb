@@ -44,6 +44,7 @@ module Sanction
             (#{ROLE_ALIAS}.permissionable_id = '#{klass_instance.id}' OR #{ROLE_ALIAS}.permissionable_id IS NULL)
             AND #{ROLE_ALIAS}.permissionable_type = '#{klass_instance.class.name.to_s}'"
           )
+
         }
       end
     end
