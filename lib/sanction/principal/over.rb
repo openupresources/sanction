@@ -42,20 +42,20 @@ module Sanction
         def self.extended(base)
           base.scope :over_scope_method, lambda {|*args|
             if args.include? Sanction::Role::Definition::ANY_TOKEN
-              {:conditions => ["#{ROLE_ALIAS}.permissionable_type IS NOT NULL"]}
+              where("#{ROLE_ALIAS}.permissionable_type IS NOT NULL")
             else
               args.map {|a| raise Sanction::Role::Error::UnknownPermissionable.new("Unknown permissionable: #{a}") unless Sanction::Role::Definition.valid_permissionable? a }
 
-              conds = []
+              collection = self.all
+
               args.each do |arg|
                 if arg.is_a? Class
-                  conds << ["#{ROLE_ALIAS}.permissionable_type = ?", arg.name.to_s]
+                  collection.where! ["#{ROLE_ALIAS}.permissionable_type = ?", arg.name.to_s]
                 else
-                  conds << ["#{ROLE_ALIAS}.permissionable_type = ? AND (#{ROLE_ALIAS}.permissionable_id = ? OR #{ROLE_ALIAS}.permissionable_id IS NULL)", arg.class.name.to_s, arg.id]
+                  collection.where! ["#{ROLE_ALIAS}.permissionable_type = ? AND (#{ROLE_ALIAS}.permissionable_id = ? OR #{ROLE_ALIAS}.permissionable_id IS NULL)", arg.class.name.to_s, arg.id]
                 end
               end
-              conditions = conds.map { |c| base.merge_conditions(c) }.join(" OR ")
-              {:conditions => conditions}
+              collection
             end
           }
         end
