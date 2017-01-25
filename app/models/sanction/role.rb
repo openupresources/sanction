@@ -1,6 +1,5 @@
 # Instances of Roles within the system. Uses double-sided polymorphism to attribute
 # roles to principals over permissionables. Allows blanket class attributation.
-#
 class Sanction::Role < ActiveRecord::Base
   require_relative('role/definition')
   require_relative('role/error')

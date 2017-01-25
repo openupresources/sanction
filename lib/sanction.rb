@@ -1,10 +1,10 @@
-require_relative '../app/models/sanction/role'
 
 # Sanction
 # In the initializer, set the principals, permissionables, roles afterwhich
 # the injections will take place based on these class vars.
 #
 module Sanction
+require_relative '../app/models/sanction/role'
 
   require 'sanction/engine'
 
